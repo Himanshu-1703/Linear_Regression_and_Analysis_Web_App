@@ -59,8 +59,8 @@ class LR:
 
 
 
-    def __init__(self,method='OLS',purpose='prediction',gd_regressor_type=None,
-                 epochs=None,learning_rate=None,batch_size=None):
+    def __init__(self,method:str='OLS',purpose:str='prediction',gd_regressor_type:str=None,
+                 epochs:int=None,learning_rate:float=None,batch_size:int=None):
         self.method = method
         self.purpose = purpose
         self.gd_regressor_type = gd_regressor_type

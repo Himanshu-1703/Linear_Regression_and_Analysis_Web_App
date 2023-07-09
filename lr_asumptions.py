@@ -23,7 +23,7 @@ Generally there are 5 assumtions of linear regression:
 5. No autocorrelation among the residuals.
 '''
 
-def check_lineariry(df,target_column):
+def check_linearity(df:pd.DataFrame,target_column:pd.Series):
    
 
     # separate the X and y from the df
@@ -39,6 +39,14 @@ def check_lineariry(df,target_column):
     results = ols.fit()
 
     if results.f_pvalue <= 0.05:
-        return 'Reject the null hypothesis, The data is non-linear'
+        return 'Reject the null hypothesis, The data shows a linear relationship with the target'
     else:
-        return 'Fail to reject the null hypothesis, The data is linear'
+        return 'Fail to reject the null hypothesis, The data does not show any linear relationship with the target'
+    
+    
+def plot_linearity(df:pd.DataFrame,target_column:pd.Series):
+    
+    num_data = df.select_dtypes(include=np.number)
+    
+    for col in num_data.columns:
+        pass
