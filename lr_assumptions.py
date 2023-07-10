@@ -24,18 +24,11 @@ Generally there are 5 assumtions of linear regression:
 '''
 
 def check_linearity(df:pd.DataFrame,target_column:pd.Series):
-   
-
-    # separate the X and y from the df
-
-    X = df.drop(columns=target_column)
-    y = df[target_column]
-
-    # add constant term to X
-    X = sm.add_constant(X)
+   # add constant term to X
+    X = sm.add_constant(df)
 
     # fit the ols model
-    ols = sm.OLS(endog=y,exog=X)
+    ols = sm.OLS(endog=target_column,exog=X)
     results = ols.fit()
 
     if results.f_pvalue <= 0.05:
@@ -44,9 +37,25 @@ def check_linearity(df:pd.DataFrame,target_column:pd.Series):
         return 'Fail to reject the null hypothesis, The data does not show any linear relationship with the target'
     
     
-def plot_linearity(df:pd.DataFrame,target_column:pd.Series):
+def plot_linearity(X:pd.DataFrame,target_column:pd.Series):
+    # select the numerical columns
+    num_data = X.select_dtypes(include=np.number)
     
-    num_data = df.select_dtypes(include=np.number)
+    # number of columns in input data
+    num_cols = len(X.columns)
     
-    for col in num_data.columns:
-        pass
+    # fig object and size
+    fig = plt.figure(figsize=(13,(num_cols//2)*8))
+
+        
+    for ind,col in enumerate(num_data.columns):
+        # plot the subplot
+            plt.subplot((num_cols//2)+1,2,ind+1)
+            
+            # plot the scatter plot
+            sns.scatterplot(data=X,x=col,y=target_column)
+            plt.tight_layout()
+            
+    return fig
+        
+        

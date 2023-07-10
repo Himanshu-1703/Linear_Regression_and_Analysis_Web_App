@@ -1,5 +1,6 @@
 # test notebooks
 /notebooks/test_notebook.ipynb
+/notebooks/test_notebook_for_assumptions.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
