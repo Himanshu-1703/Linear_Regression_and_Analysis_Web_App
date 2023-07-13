@@ -69,6 +69,8 @@ class LR:
         self.batch_size = batch_size
         self.lin_obj = None
 
+        if type(self.epochs) != int:
+            raise ValueError('int values only')
 
     def fit(self,X,y):
         if (self.method == 'OLS') and (self.purpose == 'prediction'):
