@@ -69,8 +69,6 @@ class LR:
         self.batch_size = batch_size
         self.lin_obj = None
 
-        if type(self.epochs) != int:
-            raise ValueError('int values only')
 
     def fit(self,X,y):
         if (self.method == 'OLS') and (self.purpose == 'prediction'):
@@ -85,8 +83,9 @@ class LR:
             results = self.lin_obj.fit()
 
             # generate summary
-            print(results.summary())
-
+            summary = results.summary()
+            return summary
+        
         elif (self.method == 'GD') and (self.purpose == 'prediction'):
             if self.gd_regressor_type == 'batch_gd':
                 # fit a batch gradient descent regressor
@@ -114,15 +113,14 @@ class LR:
 
     
     def score(self,y_true,y_pred):
-        if (self.method == 'OLS') and (self.purpose == 'inference'):
-            return None
-
-        elif (self.method == 'OLS') and (self.purpose == 'prediction'):
+        if (self.method == 'OLS') and (self.purpose == 'prediction'):
             score = r2_score(y_true,y_pred)
             return score
-        else:
+        elif self.method == 'GD' :
             score = self.lin_obj.score(y_true,y_pred)
             return score
+        else:
+            return None
         
 
    
