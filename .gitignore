@@ -1,6 +1,10 @@
 # test notebooks
 /notebooks/test_notebook.ipynb
 /notebooks/test_notebook_for_assumptions.ipynb
+test.py
+
+# data sets
+test data.csv 
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

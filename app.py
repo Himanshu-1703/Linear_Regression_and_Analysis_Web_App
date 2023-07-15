@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from linear_regression import LR
-import gd_regressor
+
 
 
 # insert the main page title
@@ -39,8 +39,8 @@ if file:
 
     # train test split the data
     st.sidebar.subheader('Choose the Test Size ratio for the split')
-    test_ratio = st.sidebar.slider(label='Test Size ratio',min_value=10,
-                    max_value=90,value=20,step=10,
+    test_ratio = st.sidebar.slider(label='Test Size ratio',min_value=0.1,
+                    max_value=0.9,value=0.2,step=0.1,
                     help='The train size ratio will be (100-Test Ratio)')
 
     # introduce randomness everytime we make a split

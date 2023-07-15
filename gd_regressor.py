@@ -14,8 +14,17 @@ class BGD_Regressor:
         self.intercept_ = None
 
     def fit(self, X, y):
-        X = X.values
-        y = y.values
+        if not isinstance(X,np.ndarray):
+            if not isinstance(y,np.ndarray):
+                X = X.values
+                y = y.values
+            else:
+                X = X.values
+                
+        elif isinstance(X,np.ndarray):
+            if not isinstance(y,np.ndarray):
+                y = y.values
+        
         # initialize the weights and intercept
         self.intercept_ = 0
         self.coef_ = np.ones(shape=X.shape[1])
@@ -36,7 +45,9 @@ class BGD_Regressor:
             self.coef_ = self.coef_ - (self.learning_rate * coef_der)
 
     def predict(self, X):
-        X = X.values
+        if not isinstance(X,np.ndarray):
+            X = X.values
+        
         y_pred = np.dot(X, self.coef_) + self.intercept_
         return y_pred
 
@@ -58,8 +69,18 @@ class SGD_Regressor:
         self.intercept_ = None
 
     def fit(self, X, y):
-        X = X.values
-        y = y.values
+        if not isinstance(X,np.ndarray):
+            if not isinstance(y,np.ndarray):
+                X = X.values
+                y = y.values
+            else:
+                X = X.values
+                
+        elif isinstance(X,np.ndarray):
+            if not isinstance(y,np.ndarray):
+                y = y.values
+        
+        
         # initialize the weights and intercept
         self.intercept_ = 0
         self.coef_ = np.ones(shape=X.shape[1])
@@ -73,19 +94,22 @@ class SGD_Regressor:
                 # select the random row from the data
                 idx = np.random.randint(low=0,high=n-1)
                 # do predictions
-                y_pred = np.dot(X[idx], self.coef_) + self.intercept_
-                resid = y[idx] - y_pred
+                y_pred = np.dot(X[idx,:], self.coef_) + self.intercept_
+                resid = y[idx]- y_pred
 
                 # update the intercept
                 intercept_der = -2 * resid
                 self.intercept_ = self.intercept_ - (self.learning_rate * intercept_der)
 
                 # update the coef
-                coef_der = -2 * (np.dot(resid, X[idx]))
+                coef_der = -2 * (np.dot(resid, X[idx,:]))
                 self.coef_ = self.coef_ - (self.learning_rate * coef_der)
 
     def predict(self, X):
-        X = X.values
+        if not isinstance(X,np.ndarray):
+            X = X.values
+          
+          
         y_pred = np.dot(X, self.coef_) + self.intercept_
         return y_pred
 
@@ -106,8 +130,17 @@ class MBGD_Regressor:
         self.intercept_ = None
 
     def fit(self, X, y):
-        X = X.values
-        y = y.values
+        if not isinstance(X,np.ndarray):
+            if not isinstance(y,np.ndarray):
+                X = X.values
+                y = y.values
+            else:
+                X = X.values
+                
+        elif isinstance(X,np.ndarray):
+            if not isinstance(y,np.ndarray):
+                y = y.values
+        
         # initialize the weights and intercept
         self.intercept_ = 0
         self.coef_ = np.ones(shape=X.shape[1])
@@ -122,7 +155,7 @@ class MBGD_Regressor:
                 idx = np.random.randint(low=0,high=X.shape[0]-1,size=self.batch_size)
 
                 # do predictions
-                y_pred = np.dot(X[idx], self.coef_) + self.intercept_
+                y_pred = np.dot(X[idx,:], self.coef_) + self.intercept_
                 resid = y[idx] - y_pred
 
                 # update the intercept
@@ -130,11 +163,13 @@ class MBGD_Regressor:
                 self.intercept_ = self.intercept_ - (self.learning_rate * intercept_der)
 
                 # update the coef
-                coef_der = (-2 * (np.dot(resid, X[idx]))) / self.batch_size
+                coef_der = (-2 * (np.dot(resid, X[idx,:]))) / self.batch_size
                 self.coef_ = self.coef_ - (self.learning_rate * coef_der)
 
     def predict(self, X):
-        X = X.values
+        if not isinstance(X,np.ndarray):
+            X = X.values
+            
         y_pred = np.dot(X, self.coef_) + self.intercept_
         return y_pred
 
