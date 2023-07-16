@@ -107,8 +107,6 @@ class Linearity:
 
 
 
-
-
 class Normality_Of_Residuals:
     
     def __init__(self,df:pd.DataFrame,target_column:pd.Series) -> None:

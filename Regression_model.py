@@ -4,7 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from linear_regression import LR
-
+import plotly.express as px
+import plotly.graph_objects as go
 
 
 # insert the main page title
@@ -115,8 +116,8 @@ if file:
     if prediction_type == 'prediction':
             
             # use the radio button for plotting the regression line
-            radio = st.sidebar.radio(label='Plot the regression plot in 2D',
-                                    options=['Yes','No'],index=1)
+            radio = st.sidebar.radio(label='Plot the regression plot in 2D/3D',
+                                    options=['2D','3D'],index=1)
             
        
     btn = st.sidebar.button("Apply")
@@ -147,34 +148,66 @@ if file:
             st.subheader(f"The score of the Regression Model is {np.round(score,2)}")
             
              # toggle it only when OLS and Gradient Descent are used
-            if radio == "Yes":
+            if radio == "2D":
                     
-                    # perform PCA on the data
-                    from sklearn.decomposition import PCA
+                # perform PCA on the data
+                from sklearn.decomposition import PCA
 
-                    pca = PCA(n_components=1)
+                pca = PCA(n_components=1)
+                
+                X_train_pca = pca.fit_transform(X_train)
+                X_test_pca = pca.transform(X_test)
+                
+                # fit the model
+                linear_reg.fit(X_train_pca.reshape(-1,1),y_train)
+                
+                # predict on synthetic data
+                X_test_temp = np.linspace(X_train_pca.min(),X_train_pca.max(),100)
+                
+                y_pred_plot = linear_reg.predict(X_test_temp.reshape(-1,1))
+                
+                # plot the graph
+                fig, ax = plt.subplots()
+                ax.scatter(X_train_pca,y_train)
+                
+                # plot the regression line
+                ax.plot(X_test_temp,y_pred_plot,color='red')
+                
+                st.pyplot(fig)
                     
-                    X_train_pca = pca.fit_transform(X_train)
-                    X_test_pca = pca.transform(X_test)
-                    
-                    # fit the model
-                    linear_reg.fit(X_train_pca.reshape(-1,1),y_train)
-                    
-                    # predict on synthetic data
-                    X_test_temp = np.linspace(X_train_pca.min(),X_train_pca.max(),100)
-                    
-                    y_pred_plot = linear_reg.predict(X_test_temp.reshape(-1,1))
-                    
-                    # plot the graph
-                    fig, ax = plt.subplots()
-                    ax.scatter(X_train_pca,y_train)
-                    
-                    # plot the regression line
-                    ax.plot(X_test_temp,y_pred_plot,color='red')
-                    
-                    st.pyplot(fig)
-                    
-            
+            elif radio == "3D":
+                # perform PCA on the data
+                from sklearn.decomposition import PCA
+
+                pca = PCA(n_components=2)
+                
+                X_train_pca = pca.fit_transform(X_train)
+                X_test_pca = pca.transform(X_test)
+                
+                # fit the model
+                linear_reg.fit(X_train_pca,y_train)
+                
+                # make the mehgrid
+                x = np.linspace(X_train_pca[:,0].min(),X_train_pca[:,0].max(),500)
+                y = np.linspace(X_train_pca[:,1].min(),X_train_pca[:,1].max(),500)
+                
+                XX,YY = np.meshgrid(x,y)
+                
+                # make the array
+                arr = np.array([XX.ravel(),YY.ravel()]).T
+                
+                # make predictions on the arr
+                z = linear_reg.predict(arr)
+                z = z.reshape(XX.shape)
+                
+                # plot the contour plot and scatter plot
+                fig = px.scatter_3d(x=X_train_pca[:,0],y=X_train_pca[:,1],
+                                    z=y_train)
+                
+                fig.add_trace(go.Surface(x=x,y=y,z=z))
+                
+                st.plotly_chart(fig)
+                
         elif prediction_type =='inference':
             linear_reg = LR(method=method_name,purpose=prediction_type)
             
