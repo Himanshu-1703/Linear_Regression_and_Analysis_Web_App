@@ -7,8 +7,9 @@ import statsmodels.api as sm
 from sklearn.linear_model import LinearRegression
 from scipy.stats import shapiro,probplot
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-
-
+from sklearn.metrics import r2_score
+from sklearn.preprocessing import PolynomialFeatures
+from scipy.stats import normaltest,jarque_bera
 
 
 '''
@@ -33,20 +34,54 @@ class Linearity:
         self.df = df
         self.target = target_column
 
-
-    def check_linearity(self):
-        # add constant term to X
-        X = sm.add_constant(self.df)
-
-        # fit the ols model
-        ols = sm.OLS(endog=self.target,exog=X)
-        results = ols.fit()
-
-        if results.f_pvalue <= 0.05:
-            return 'Reject the null hypothesis, The data shows a linear relationship with the target'
-        else:
-            return 'Fail to reject the null hypothesis, The data does not show any linear relationship with the target'
+    def __calculate_residuals(self):
+       lin_reg = LinearRegression()
+       
+       # fit on the data
+       lin_reg.fit(self.df,self.target)
+       
+       # make predictions
+       y_pred = lin_reg.predict(self.df)
+       
+       # calaculate the residuals(errors)
+       resid = self.target - y_pred 
+       return resid
+   
+    def plot_residplot(self):
+        residuals = self.__calculate_residuals()
         
+        # plot the residual to create a residual plot
+        fig = plt.figure(figsize=(12,5))
+        plt.scatter(self.target.values,residuals,color='green')
+        plt.axhline(y=0,linestyle='--')
+        plt.xlabel('y_pred')
+        plt.ylabel('residuals')
+        plt.title('Residual plot')
+        
+        return fig
+    
+    def fit_polynomial(self,degree:int):
+        
+        # make polynomial features
+        poly = PolynomialFeatures(degree=degree).set_output(transform='pandas')
+        df_poly = poly.fit_transform(self.df,self.target)
+        
+        lin_reg = LinearRegression()
+        lin_reg_poly = LinearRegression()
+        
+       # fit on the data
+        lin_reg.fit(self.df,self.target)
+        lin_reg_poly.fit(df_poly,self.target)
+        
+       # make predictions
+        y_pred_lin = lin_reg.predict(self.df)
+        y_pred_poly = lin_reg_poly.predict(df_poly)
+        
+        # calculate the r2 scores
+        lin_score = r2_score(self.target,y_pred_lin)
+        lin_score_poly = r2_score(self.target,y_pred_poly)
+        
+        return lin_score,lin_score_poly
         
     def plot_linearity(self):
         # select the numerical columns
@@ -102,18 +137,43 @@ class Normality_Of_Residuals:
         fig = sns.histplot(residuals,kde=True)
         return fig
     
-    def perf_test(self):
+    def perf_shapiro(self):
         residuals = self.__calculate_residuals()
         
         # perform the hypothesis test
-        stats,p_value = shapiro(residuals.values)
+        _,p_value = shapiro(residuals.values)
         
         if p_value > 0.05:
-            print('Fail to reject the Null Hypothesis. The residuals are normally distributed')
+            return 'Fail to reject the Null Hypothesis. The residuals are normally distributed'
             
         else:
-            print('Reject the Null Hypothesis. The residuals are not norally distributed')
+            return 'Reject the Null Hypothesis. The residuals are not normally distributed'
             
+    def perf_omnibus(self):
+        residuals = self.__calculate_residuals()
+        
+        # perform the hypothesis test
+        _,p_value = normaltest(residuals.values)
+        
+        if p_value > 0.05:
+            return 'Fail to reject the Null Hypothesis. The residuals are normally distributed'
+            
+        else:
+            return 'Reject the Null Hypothesis. The residuals are not normally distributed'
+        
+    
+    def perf_jarque_bera(self):
+        residuals = self.__calculate_residuals()
+        
+        # perform the hypothesis test
+        _,p_value = jarque_bera(residuals.values)
+        
+        if p_value > 0.05:
+            return 'Fail to reject the Null Hypothesis. The residuals are normally distributed'
+            
+        else:
+            return 'Reject the Null Hypothesis. The residuals are not normally distributed'
+    
     
     def plot_qq(self):
         residuals = self.__calculate_residuals()
