@@ -5,7 +5,7 @@ import seaborn as sns
 from scipy.stats import probplot
 import statsmodels.api as sm
 from sklearn.linear_model import LinearRegression
-from scipy.stats import shapiro,probplot
+from scipy.stats import shapiro,probplot,skew
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.metrics import r2_score
 from sklearn.preprocessing import PolynomialFeatures
@@ -131,9 +131,11 @@ class Normality_Of_Residuals:
         residuals = self.__calculate_residuals()
         
         # plot the histogram and kde plot for the residuals
-
-        fig = sns.histplot(residuals,kde=True)
-        return fig
+        fig,ax = plt.subplots()
+        sns.histplot(residuals,kde=True,ax=ax)
+        
+        skewness = skew(residuals)
+        return fig,skewness
     
     def perf_shapiro(self):
         residuals = self.__calculate_residuals()
@@ -142,10 +144,10 @@ class Normality_Of_Residuals:
         _,p_value = shapiro(residuals.values)
         
         if p_value > 0.05:
-            return 'Fail to reject the Null Hypothesis. The residuals are normally distributed'
+            return 'Fail to reject the Null Hypothesis. The residuals are normally distributed',p_value
             
         else:
-            return 'Reject the Null Hypothesis. The residuals are not normally distributed'
+            return 'Reject the Null Hypothesis. The residuals are not normally distributed',p_value
             
     def perf_omnibus(self):
         residuals = self.__calculate_residuals()
@@ -154,10 +156,10 @@ class Normality_Of_Residuals:
         _,p_value = normaltest(residuals.values)
         
         if p_value > 0.05:
-            return 'Fail to reject the Null Hypothesis. The residuals are normally distributed'
+            return 'Fail to reject the Null Hypothesis. The residuals are normally distributed',p_value
             
         else:
-            return 'Reject the Null Hypothesis. The residuals are not normally distributed'
+            return 'Reject the Null Hypothesis. The residuals are not normally distributed',p_value
         
     
     def perf_jarque_bera(self):
@@ -167,10 +169,10 @@ class Normality_Of_Residuals:
         _,p_value = jarque_bera(residuals.values)
         
         if p_value > 0.05:
-            return 'Fail to reject the Null Hypothesis. The residuals are normally distributed'
+            return 'Fail to reject the Null Hypothesis. The residuals are normally distributed',p_value
             
         else:
-            return 'Reject the Null Hypothesis. The residuals are not normally distributed'
+            return 'Reject the Null Hypothesis. The residuals are not normally distributed',p_value
     
     
     def plot_qq(self):
@@ -178,10 +180,11 @@ class Normality_Of_Residuals:
         
         # set the figure parameters
         fig = plt.figure(figsize=(10,6))
-        probplot(residuals.values,plot=fig)
+        probplot(residuals.values,plot=plt)
         plt.title('QQ plot of residuals')
         
-        return fig
+        skewness = skew(residuals)
+        return fig,skewness
         
         
 
@@ -225,11 +228,11 @@ class Multicollinearity:
         
         
     def plot_corr_matrix(self):
-        fig = plt.figure(figsize=(10,10))
+        fig,ax = plt.subplots(figsize=(15,15))
         
         # plot the heatmap
-        sns.heatmap(self.df.corr(),annot=True,cmap='RdBu')
-        
+        sns.heatmap(self.df.corr(),annot=True,cmap='RdBu',ax=ax)
+    
         return fig
     
     

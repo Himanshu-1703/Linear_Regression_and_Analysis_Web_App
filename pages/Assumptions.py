@@ -55,19 +55,102 @@ if file:
     assumption = st.sidebar.selectbox(label='Select the Regression Assumption',
                          options=list(options_dict.keys()))
     
+    # header for the assumptions output
+    st.subheader('Output of the test')
+    
     if assumption == 'Linearity of features':
-        pass
+        lin_dict = {'Plot Residual Plot':lin.plot_residplot, 
+                    'Polynomial Transformation':lin.fit_polynomial, 
+                    'Plot Scatterplots':lin.plot_linearity}
+        
+        option = st.sidebar.selectbox(label='Choose the test',
+                             options=list(lin_dict.keys()))
+        
+        if option in list(lin_dict.keys())[::2]:
+            btn = st.sidebar.button(label='Plot Graph')
+            if btn:
+                fig = lin_dict.get(option)()
+                st.pyplot(fig)
+        
+        elif option in list(lin_dict.keys())[1]:
+            degree_slider = st.sidebar.slider(label='Select the degree of polynomial terms',
+                              min_value=2,max_value=10,value=2,
+                              step=1)
+            btn = st.sidebar.button(label='Apply Polynomial')
+            
+            # activate on press of button
+            if btn:
+                res1,res2 = lin_dict.get(option)(degree=degree_slider)
+                
+                st.write(f'The R2 score without Polynomial Transformation is {np.round(res1,2)}')
+                st.write(f'The R2 score with Polynomial Transformation is {np.round(res2,2)}')
+    
     
     elif assumption == 'Multicollinearity':
-        pass
+        multi_dict = {'Plot Correlation Matrix':multi.plot_corr_matrix, 
+                      'Perform VIF Test':multi.calculate_vif}
+
+        option = st.sidebar.selectbox(label='Choose the test',
+                             options=list(multi_dict.keys()))
+        
+        if option == 'Plot Correlation Matrix':
+            btn = st.sidebar.button(label='Plot Graph')
+            if btn:
+                fig = multi_dict.get(option)()
+                st.pyplot(fig)
+                
+        elif option == 'Perform VIF Test':
+            btn = st.sidebar.button(label='Do VIF Test')
+            if btn:
+                vif_df = multi_dict.get(option)()
+                st.write('The results of the VIF Test are:')
+                st.dataframe(vif_df)
+    
     
     elif assumption == 'Normality of Residuals':
-        pass
+        norm_dict = {'Plot Histogram':norm.plot_graph, 
+                     'Plot QQ Plot':norm.plot_qq,
+                     'Shapiro test':norm.perf_shapiro, 
+                     'Omnibus Test':norm.perf_omnibus, 
+                     'Jarque Bera Test':norm.perf_jarque_bera}
+    
+        option = st.sidebar.selectbox(label='Choose the test',
+                             options=list(norm_dict.keys()))
+        
+        if option in list(norm_dict.keys())[0:2]:
+            btn = st.sidebar.button(label='Plot Graph')
+            if btn:
+                fig,skew = norm_dict.get(option)()
+                st.pyplot(fig)
+                st.write(f'The skewness of the Distribution is {skew}')
+        
+        elif option in list(norm_dict.keys())[2:]:
+            btn = st.sidebar.button(label='Perform Hypothesis test')
+            if btn:
+                res,p_val = norm_dict.get(option)()
+                st.write('The result of the Hypothesis Test is:')
+                st.write(f'{res} and the p value is {p_val}')
+                
+    
     
     elif assumption == 'Autocorrelation of Residuals':
-        pass
+        option = st.sidebar.selectbox(label='Choose the test',
+                             options=['Autocorrelation of Residuals'])
+        
+        
+        btn = st.sidebar.button(label='Plot Graph')
+        if btn:
+            fig = auto.plot_autocorrelation()
+            st.pyplot(fig)
     
     elif assumption == 'Homoscedasticity':
-        pass
-    
+        option = st.sidebar.selectbox(label='Choose the test',
+                             options=['Plot Residual Plot'])
+        
+        
+        btn = st.sidebar.button(label='Plot Graph')
+        if btn:
+            fig = homo.plot_residplot()
+            st.pyplot(fig)
+                
     
